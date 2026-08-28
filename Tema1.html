@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sesión 1 · Quiz de Operaciones y Perímetros</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B2D57;
+    --navy-deep:#071D3B;
+    --blue:#2F6FED;
+    --blue-soft:#DCE9FF;
+    --paper:#F6F4EE;
+    --line:#C9D6E8;
+    --coral:#E15B45;
+    --green:#1E9E6B;
+    --ink:#0B2D57;
+    --muted:#5B6B85;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      linear-gradient(180deg, rgba(11,45,87,0.02), rgba(11,45,87,0)),
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(47,111,237,0.07) 28px),
+      repeating-linear-gradient(90deg, transparent, transparent 27px, rgba(47,111,237,0.07) 28px),
+      var(--paper);
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px 16px;
+  }
+
+  .board{
+    width:100%;
+    max-width:640px;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+    font-family:'Space Grotesk', sans-serif;
+  }
+  .brand .tag{
+    font-size:11px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+    font-weight:600;
+  }
+  .brand h1{
+    font-size:15px;
+    margin:2px 0 0;
+    color:var(--navy);
+    font-weight:700;
+  }
+  .brand .badge{
+    background:var(--navy);
+    color:white;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    padding:6px 12px;
+    border-radius:20px;
+    font-weight:600;
+  }
+
+  .card{
+    background:white;
+    border:1.5px solid var(--line);
+    border-radius:18px;
+    box-shadow:0 18px 40px -18px rgba(11,45,87,0.28);
+    overflow:hidden;
+    position:relative;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0;
+    height:6px;
+    background:linear-gradient(90deg, var(--navy), var(--blue) 55%, var(--coral));
+  }
+
+  /* ---------- Progress ---------- */
+  .progress-row{
+    display:flex;
+    gap:6px;
+    padding:22px 26px 0;
+  }
+  .dot{
+    flex:1;
+    height:6px;
+    border-radius:4px;
+    background:var(--line);
+    position:relative;
+    overflow:hidden;
+  }
+  .dot.done{background:var(--navy);}
+  .dot.current{background:var(--blue-soft);}
+  .dot.current::after{
+    content:"";
+    position:absolute; inset:0;
+    background:var(--blue);
+    width:50%;
+  }
+
+  .meta-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:14px 26px 0;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--muted);
+  }
+  .meta-row .type-chip{
+    background:var(--blue-soft);
+    color:var(--navy);
+    padding:4px 10px;
+    border-radius:6px;
+    font-weight:600;
+    letter-spacing:0.02em;
+  }
+  .meta-row .score{
+    font-weight:600;
+    color:var(--navy);
+  }
+
+  /* ---------- Question ---------- */
+  .q-wrap{
+    padding:20px 26px 26px;
+  }
+  .q-label{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--muted);
+    font-weight:600;
+    margin-bottom:10px;
+  }
+  .q-expr{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:clamp(22px, 6vw, 32px);
+    font-weight:600;
+    background:var(--navy-deep);
+    color:white;
+    padding:26px 20px;
+    border-radius:14px;
+    text-align:center;
+    letter-spacing:0.01em;
+    margin-bottom:8px;
+    line-height:1.35;
+  }
+  .q-shape{
+    text-align:center;
+    margin-bottom:6px;
+  }
+  .q-shape svg{max-width:220px; width:100%; height:auto;}
+
+  .options{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:18px;
+  }
+  .opt{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:17px;
+    font-weight:600;
+    color:var(--navy);
+    background:white;
+    border:1.6px solid var(--line);
+    border-radius:12px;
+    padding:16px 10px;
+    cursor:pointer;
+    transition:transform .12s ease, border-color .12s ease, background .12s ease;
+    text-align:center;
+  }
+  .opt:hover:not(:disabled){
+    border-color:var(--blue);
+    transform:translateY(-2px);
+  }
+  .opt:disabled{cursor:default;}
+  .opt.correct{
+    background:#E8F7EF;
+    border-color:var(--green);
+    color:var(--green);
+  }
+  .opt.wrong{
+    background:#FCEAE6;
+    border-color:var(--coral);
+    color:var(--coral);
+  }
+  .opt.reveal{
+    background:#E8F7EF;
+    border-color:var(--green);
+    color:var(--green);
+  }
+
+  .feedback{
+    margin-top:16px;
+    min-height:22px;
+    font-size:14px;
+    font-weight:500;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .feedback.ok{color:var(--green);}
+  .feedback.bad{color:var(--coral);}
+  .feedback .hint{
+    color:var(--muted);
+    font-weight:400;
+    font-family:'Inter', sans-serif;
+  }
+
+  .actions{
+    margin-top:20px;
+    display:flex;
+    justify-content:flex-end;
+  }
+  .btn{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    background:var(--navy);
+    color:white;
+    border:none;
+    border-radius:10px;
+    padding:12px 22px;
+    cursor:pointer;
+    transition:background .12s ease;
+  }
+  .btn:hover{background:var(--blue);}
+  .btn:disabled{background:var(--line); cursor:not-allowed;}
+  .btn.ghost{
+    background:transparent;
+    color:var(--navy);
+    border:1.6px solid var(--navy);
+  }
+  .btn.ghost:hover{background:var(--blue-soft);}
+
+  /* ---------- Start / End screens ---------- */
+  .center-panel{
+    padding:44px 30px;
+    text-align:center;
+  }
+  .center-panel h2{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:24px;
+    margin:0 0 10px;
+    color:var(--navy);
+  }
+  .center-panel p{
+    color:var(--muted);
+    font-size:14.5px;
+    line-height:1.55;
+    max-width:420px;
+    margin:0 auto 22px;
+  }
+  .types-list{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin:0 0 26px;
+    text-align:left;
+  }
+  .types-list div{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 14px;
+    font-size:13px;
+    color:var(--navy);
+    font-weight:600;
+  }
+  .types-list div span{
+    display:block;
+    font-weight:400;
+    color:var(--muted);
+    font-size:12px;
+    margin-top:2px;
+  }
+
+  .score-big{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:52px;
+    font-weight:700;
+    color:var(--navy);
+    margin:6px 0 2px;
+  }
+  .score-sub{
+    color:var(--muted);
+    font-size:13px;
+    margin-bottom:24px;
+  }
+  .breakdown{
+    text-align:left;
+    border-top:1px solid var(--line);
+    padding-top:16px;
+    margin-bottom:22px;
+  }
+  .breakdown-row{
+    display:flex;
+    justify-content:space-between;
+    padding:9px 0;
+    font-size:13.5px;
+    border-bottom:1px dashed var(--line);
+  }
+  .breakdown-row:last-child{border-bottom:none;}
+  .breakdown-row .r-icon{
+    margin-right:8px;
+  }
+  .breakdown-row.ok{color:var(--green);}
+  .breakdown-row.bad{color:var(--coral);}
+
+  footer{
+    text-align:center;
+    margin-top:16px;
+    font-size:11.5px;
+    color:var(--muted);
+  }
+
+  .hidden{display:none !important;}
+
+  @media (max-width:420px){
+    .options{grid-template-columns:1fr;}
+    .types-list{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="board">
+  <div class="brand">
+    <div>
+      <div class="tag">PrepaTEC CCM · Fundamentos de Matemáticas</div>
+      <h1>Sesión 1 — Operaciones y Perímetros</h1>
+    </div>
+    <div class="badge" id="liveScore">0 / 0</div>
+  </div>
+
+  <div class="card">
+
+    <!-- START SCREEN -->
+    <div class="center-panel" id="startScreen">
+      <h2>¿Listo para practicar?</h2>
+      <p>8 preguntas, 2 por cada tipo de ejercicio visto en clase. Cuatro opciones cada una — elige con cuidado, algunas opciones están diseñadas para atrapar los errores más comunes.</p>
+      <div class="types-list">
+        <div>1 · Suma y resta<span>Signos combinados</span></div>
+        <div>2 · Producto múltiple<span>Regla par/impar</span></div>
+        <div>3 · Mult. y división<span>Ley de signos directa</span></div>
+        <div>4 · Perímetros<span>No olvides la unidad</span></div>
+      </div>
+      <button class="btn" id="startBtn">Comenzar quiz</button>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div class="hidden" id="quizScreen">
+      <div class="progress-row" id="progressRow"></div>
+      <div class="meta-row">
+        <div class="type-chip" id="typeChip">Tipo 1</div>
+        <div class="score" id="questionCounter">Pregunta 1 de 8</div>
+      </div>
+      <div class="q-wrap">
+        <div class="q-label" id="qLabel">Calcula la siguiente expresión:</div>
+        <div class="q-expr" id="qExpr"></div>
+        <div class="q-shape hidden" id="qShape"></div>
+        <div class="options" id="optionsWrap"></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="actions">
+          <button class="btn" id="nextBtn" disabled>Siguiente</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- END SCREEN -->
+    <div class="hidden center-panel" id="endScreen">
+      <h2 id="endTitle">¡Sesión completada!</h2>
+      <div class="score-big" id="finalScore">0/8</div>
+      <div class="score-sub" id="finalMsg">Aciertos totales</div>
+      <div class="breakdown" id="breakdown"></div>
+      <button class="btn" id="retryBtn">Volver a intentar</button>
+    </div>
+
+  </div>
+
+  <footer>Basado en la Guía de la Sesión 1 · Fundamentos de Matemáticas · ALEKS Reforzamiento</footer>
+</div>
+
+<script>
+/* ---------- Helpers ---------- */
+function rand(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function uniquePush(set, val){ set.add(val); return set; }
+
+/* ---------- Question generators (one per exercise type) ---------- */
+
+function genSumaResta(){
+  // pick 5 signed terms, first term's sign is fixed by how we render
+  const terms = [];
+  for(let i=0;i<5;i++){
+    let v = rand(2,15);
+    let sign = Math.random() < 0.5 ? -1 : 1;
+    terms.push(sign*v);
+  }
+  const correct = terms.reduce((a,b)=>a+b,0);
+  // build expression string like PDF style: "6 - 12 + 8 - 3 + 5"
+  let expr = (terms[0] < 0 ? '- ' : '') + Math.abs(terms[0]);
+  for(let i=1;i<terms.length;i++){
+    expr += (terms[i] < 0 ? ' - ' : ' + ') + Math.abs(terms[i]);
+  }
+  const options = new Set([correct]);
+  options.add(-correct === correct ? correct + 2 : -correct); // sign-flip distractor
+  const posSum = terms.filter(t=>t>0).reduce((a,b)=>a+b,0);
+  const negSum = terms.filter(t=>t<0).reduce((a,b)=>a+b,0);
+  options.add(posSum); // forgot to subtract negatives distractor
+  while(options.size < 4){ options.add(correct + rand(-6,6)); }
+  return {
+    type:'Tipo 1 · Suma y resta',
+    label:'Calcula la siguiente expresión:',
+    expr,
+    correct: `${correct}`,
+    options: shuffle([...options].slice(0,4).map(String)),
+    tip:'Agrupa positivos y negativos por separado, luego resta los totales.'
+  };
+}
+
+function genProducto(){
+  const count = 3;
+  const nums = [];
+  for(let i=0;i<count;i++){ nums.push(rand(2,6)); }
+  const negCount = Math.random() < 0.5 ? [1,3][rand(0,1)] : [2][0];
+  const negIdx = shuffle([0,1,2]).slice(0, negCount);
+  const displayNums = nums.map((n,i)=> negIdx.includes(i) ? -n : n);
+  const product = displayNums.reduce((a,b)=>a*b,1);
+  const correct = product;
+  const expr = displayNums.map(n => n<0 ? `( - ${Math.abs(n)} )` : `( ${n} )`).join(' ');
+  const magnitude = nums.reduce((a,b)=>a*b,1);
+  const options = new Set([correct, -correct]);
+  options.add(magnitude);
+  options.add(-magnitude);
+  while(options.size < 4){ options.add(correct + rand(-10,10)); }
+  return {
+    type:'Tipo 2 · Producto múltiple',
+    label:'Evalúa la siguiente expresión:',
+    expr,
+    correct: `${correct}`,
+    options: shuffle([...options].slice(0,4).map(String)),
+    tip:'Cuenta los signos negativos: cantidad par = resultado positivo, impar = negativo.'
+  };
+}
+
+function genMultDiv(){
+  const isMult = Math.random() < 0.5;
+  let a = rand(4,9);
+  let b = rand(4,9);
+  const signA = Math.random() < 0.5 ? -1 : 1;
+  const signB = Math.random() < 0.5 ? -1 : 1;
+  let expr, correct, wrongMagnitude, sumConfuse;
+  if(isMult){
+    const av = a*signA, bv = b*signB;
+    correct = av*bv;
+    expr = `${av<0?`- ${a}`:a} × ${bv<0?`( - ${b} )`:`( ${b} )`}`;
+    wrongMagnitude = a*b;
+    sumConfuse = signA*a + signB*b; // common mix-up with addition/subtraction
+  } else {
+    // ensure divisibility
+    b = rand(2,9);
+    const q = rand(2,9);
+    a = b*q;
+    const av = a*signA, bv = b*signB;
+    correct = (av/bv);
+    expr = `${av<0?`- ${a}`:a} ÷ ${bv<0?`( - ${b} )`:`( ${b} )`}`;
+    wrongMagnitude = a/b;
+    sumConfuse = signA*a + signB*b;
+  }
+  const options = new Set([correct, -correct, wrongMagnitude]);
+  options.add(sumConfuse);
+  while(options.size < 4){ options.add(correct + rand(-6,6)); }
+  return {
+    type:'Tipo 3 · Multiplicación y división',
+    label:'Evalúa la siguiente operación:',
+    expr,
+    correct: `${correct}`,
+    options: shuffle([...options].slice(0,4).map(String)),
+    tip:'Signos iguales → resultado positivo. Signos diferentes → resultado negativo.'
+  };
+}
+
+function genPerimetro(){
+  const units = ['cm','m','in','ft'];
+  const unit = units[rand(0,3)];
+  const sidesCount = Math.random() < 0.5 ? 4 : 5;
+  const sides = [];
+  for(let i=0;i<sidesCount;i++){ sides.push(rand(5,16)); }
+  const correct = sides.reduce((a,b)=>a+b,0);
+  const wrongUnit = units.filter(u=>u!==unit)[rand(0,2)];
+  const missOne = correct - sides[sides.length-1];
+  const options = shuffle([
+    `${correct} ${unit}`,
+    `${correct} ${wrongUnit}`,
+    `${missOne} ${unit}`,
+    `${correct + rand(3,8)} ${unit}`
+  ]);
+  return {
+    type:'Tipo 4 · Perímetro de polígonos',
+    label:`Calcula el perímetro del polígono (lados en ${unit}):`,
+    expr: sides.join('  +  ') + `  ${unit}`,
+    correct: `${correct} ${unit}`,
+    options,
+    tip:'Suma todos los lados y no olvides incluir la unidad correcta en tu respuesta.',
+    shapeSides: sides,
+    unit
+  };
+}
+
+const GENERATORS = [genSumaResta, genProducto, genMultDiv, genPerimetro];
+
+function buildQuizSet(){
+  // 2 questions per type, 8 total, ordered by type
+  const qs = [];
+  GENERATORS.forEach(fn => {
+    qs.push(fn());
+    qs.push(fn());
+  });
+  return qs;
+}
+
+/* simple polygon svg for perimeter questions */
+function polygonSVG(sides){
+  const n = sides.length;
+  const cx = 110, cy = 100, r = 78;
+  let points = [];
+  for(let i=0;i<n;i++){
+    const angle = (Math.PI * 2 * i / n) - Math.PI/2;
+    points.push([cx + r*Math.cos(angle), cy + r*Math.sin(angle)]);
+  }
+  const pointsStr = points.map(p=>p.join(',')).join(' ');
+  let labels = '';
+  for(let i=0;i<n;i++){
+    const p1 = points[i], p2 = points[(i+1)%n];
+    const mx = (p1[0]+p2[0])/2, my = (p1[1]+p2[1])/2;
+    const dx = mx - cx, dy = my - cy;
+    const len = Math.sqrt(dx*dx+dy*dy);
+    const lx = mx + (dx/len)*16, ly = my + (dy/len)*16;
+    labels += `<text x="${lx}" y="${ly}" font-size="12" font-family="IBM Plex Mono, monospace" fill="#0B2D57" text-anchor="middle" font-weight="600">${sides[i]}</text>`;
+  }
+  return `<svg viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="${pointsStr}" fill="#DCE9FF" stroke="#2F6FED" stroke-width="2.5"/>
+    ${labels}
+  </svg>`;
+}
+
+/* ---------- App state ---------- */
+let quiz = [];
+let idx = 0;
+let score = 0;
+let answered = false;
+let history = [];
+
+const startScreen = document.getElementById('startScreen');
+const quizScreen = document.getElementById('quizScreen');
+const endScreen = document.getElementById('endScreen');
+const startBtn = document.getElementById('startBtn');
+const retryBtn = document.getElementById('retryBtn');
+const nextBtn = document.getElementById('nextBtn');
+const progressRow = document.getElementById('progressRow');
+const typeChip = document.getElementById('typeChip');
+const questionCounter = document.getElementById('questionCounter');
+const qLabel = document.getElementById('qLabel');
+const qExpr = document.getElementById('qExpr');
+const qShape = document.getElementById('qShape');
+const optionsWrap = document.getElementById('optionsWrap');
+const feedback = document.getElementById('feedback');
+const liveScore = document.getElementById('liveScore');
+
+function startQuiz(){
+  quiz = buildQuizSet();
+  idx = 0; score = 0; history = [];
+  startScreen.classList.add('hidden');
+  endScreen.classList.add('hidden');
+  quizScreen.classList.remove('hidden');
+  buildProgress();
+  renderQuestion();
+  updateLiveScore();
+}
+
+function buildProgress(){
+  progressRow.innerHTML = '';
+  quiz.forEach((_, i)=>{
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.dataset.i = i;
+    progressRow.appendChild(d);
+  });
+  updateProgress();
+}
+
+function updateProgress(){
+  [...progressRow.children].forEach((d,i)=>{
+    d.classList.remove('done','current');
+    if(i < idx) d.classList.add('done');
+    else if(i === idx) d.classList.add('current');
+  });
+}
+
+function updateLiveScore(){
+  liveScore.textContent = `${score} / ${quiz.length}`;
+}
+
+function renderQuestion(){
+  answered = false;
+  nextBtn.disabled = true;
+  nextBtn.textContent = idx === quiz.length - 1 ? 'Ver resultados' : 'Siguiente';
+  feedback.textContent = '';
+  feedback.className = 'feedback';
+
+  const q = quiz[idx];
+  typeChip.textContent = q.type.split(' · ')[0];
+  questionCounter.textContent = `Pregunta ${idx+1} de ${quiz.length}`;
+  qLabel.textContent = q.label;
+  qExpr.textContent = q.expr;
+
+  if(q.shapeSides){
+    qShape.classList.remove('hidden');
+    qShape.innerHTML = polygonSVG(q.shapeSides);
+  } else {
+    qShape.classList.add('hidden');
+    qShape.innerHTML = '';
+  }
+
+  optionsWrap.innerHTML = '';
+  q.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.textContent = opt;
+    btn.addEventListener('click', ()=> selectAnswer(opt, btn));
+    optionsWrap.appendChild(btn);
+  });
+
+  updateProgress();
+}
+
+function selectAnswer(opt, btn){
+  if(answered) return;
+  answered = true;
+  const q = quiz[idx];
+  const isCorrect = opt === q.correct;
+  if(isCorrect) score++;
+  history.push({ q, chosen: opt, isCorrect });
+
+  [...optionsWrap.children].forEach(b => {
+    b.disabled = true;
+    if(b.textContent === q.correct) b.classList.add('correct');
+  });
+  if(!isCorrect) btn.classList.add('wrong');
+
+  feedback.classList.add(isCorrect ? 'ok' : 'bad');
+  feedback.innerHTML = isCorrect
+    ? `✓ ¡Correcto! <span class="hint">${q.tip}</span>`
+    : `✕ La respuesta correcta es <strong>${q.correct}</strong>. <span class="hint">${q.tip}</span>`;
+
+  nextBtn.disabled = false;
+  updateLiveScore();
+}
+
+function nextQuestion(){
+  if(idx < quiz.length - 1){
+    idx++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function showResults(){
+  quizScreen.classList.add('hidden');
+  endScreen.classList.remove('hidden');
+  document.getElementById('finalScore').textContent = `${score}/${quiz.length}`;
+  const pct = Math.round((score/quiz.length)*100);
+  let msg = 'Sigue practicando.';
+  if(pct === 100) msg = '¡Dominaste los 4 tipos de ejercicio!';
+  else if(pct >= 75) msg = 'Muy buen dominio del tema.';
+  else if(pct >= 50) msg = 'Vas bien, repasa los tipos que fallaste.';
+  document.getElementById('finalMsg').textContent = msg;
+
+  const breakdown = document.getElementById('breakdown');
+  breakdown.innerHTML = '';
+  history.forEach((h,i)=>{
+    const row = document.createElement('div');
+    row.className = 'breakdown-row ' + (h.isCorrect ? 'ok' : 'bad');
+    row.innerHTML = `<span><span class="r-icon">${h.isCorrect ? '✓' : '✕'}</span>${h.q.type}</span><span>${h.chosen}</span>`;
+    breakdown.appendChild(row);
+  });
+}
+
+startBtn.addEventListener('click', startQuiz);
+retryBtn.addEventListener('click', startQuiz);
+nextBtn.addEventListener('click', nextQuestion);
+</script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taller de Nivelación Matemática</title>
+<style>
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(135deg, #eaf7ff 0%, #f7fbff 50%, #eafaf5 100%);
+        color: #17324d;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    /* Figuras matemáticas decorativas */
+    .math {
+        position: fixed;
+        z-index: 0;
+        color: #2b7a78;
+        opacity: 0.12;
+        font-weight: 700;
+        pointer-events: none;
+        user-select: none;
+    }
+    .m1 { top: 8%; left: 3%; font-size: 70px; transform: rotate(-12deg); }
+    .m2 { top: 20%; right: 4%; font-size: 80px; transform: rotate(15deg); }
+    .m3 { bottom: 15%; left: 5%; font-size: 75px; transform: rotate(8deg); }
+    .m4 { bottom: 5%; right: 7%; font-size: 65px; transform: rotate(-10deg); }
+    .m5 { top: 48%; left: 1%; font-size: 48px; }
+    .m6 { top: 62%; right: 2%; font-size: 52px; }
+
+    header {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 42px 20px 32px;
+        background: linear-gradient(135deg, #16697a, #2a9d8f);
+        color: white;
+        box-shadow: 0 5px 20px rgba(23, 50, 77, 0.15);
+        overflow: hidden;
+    }
+
+    header::before {
+        content: "π   √   ∑   x²   ÷   %";
+        position: absolute;
+        top: 8px;
+        left: 0;
+        width: 100%;
+        font-size: 24px;
+        letter-spacing: 28px;
+        opacity: 0.16;
+    }
+
+    h1 {
+        margin: 8px 0 8px;
+        font-size: clamp(2rem, 5vw, 3.4rem);
+        letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+        margin: 0;
+        font-size: 1.08rem;
+        opacity: 0.94;
+    }
+
+    main {
+        position: relative;
+        z-index: 1;
+        width: min(1150px, 92%);
+        margin: 38px auto 55px;
+    }
+
+    .intro {
+        text-align: center;
+        margin-bottom: 28px;
+    }
+
+    .intro h2 {
+        margin: 0 0 8px;
+        font-size: 1.65rem;
+        color: #174a5b;
+    }
+
+    .intro p {
+        margin: 0;
+        color: #527083;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+    }
+
+    .card {
+        position: relative;
+        min-height: 180px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-decoration: none;
+        color: inherit;
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(42, 157, 143, 0.14);
+        border-radius: 20px;
+        padding: 23px;
+        box-shadow: 0 8px 22px rgba(23, 50, 77, 0.10);
+        transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+        overflow: hidden;
+    }
+
+    .card::after {
+        content: attr(data-symbol);
+        position: absolute;
+        right: 14px;
+        bottom: -15px;
+        font-size: 76px;
+        font-weight: 800;
+        color: #2a9d8f;
+        opacity: 0.08;
+    }
+
+    .card:hover {
+        transform: translateY(-7px);
+        box-shadow: 0 14px 30px rgba(23, 50, 77, 0.17);
+        border-color: rgba(42, 157, 143, 0.40);
+    }
+
+    .number {
+        width: 43px;
+        height: 43px;
+        border-radius: 13px;
+        display: grid;
+        place-items: center;
+        background: #e1f4f1;
+        color: #16697a;
+        font-weight: 800;
+        font-size: 1.15rem;
+        margin-bottom: 14px;
+    }
+
+    .icon {
+        font-size: 1.65rem;
+        margin-bottom: 10px;
+    }
+
+    .title {
+        position: relative;
+        z-index: 2;
+        font-size: 1.12rem;
+        font-weight: 700;
+        line-height: 1.35;
+        max-width: 90%;
+    }
+
+    .go {
+        position: relative;
+        z-index: 2;
+        margin-top: 18px;
+        color: #197278;
+        font-weight: 700;
+        font-size: 0.93rem;
+    }
+
+    footer {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 18px;
+        color: #6a8290;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 850px) {
+        .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 560px) {
+        header { padding: 34px 16px 26px; }
+        .grid { grid-template-columns: 1fr; }
+        .card { min-height: 155px; }
+    }
+</style>
+</head>
+
+<body>
+    <div class="math m1">π</div>
+    <div class="math m2">√x</div>
+    <div class="math m3">∑</div>
+    <div class="math m4">x²</div>
+    <div class="math m5">÷</div>
+    <div class="math m6">½</div>
+
+    <header>
+        <h1>Taller de Nivelación Matemática</h1>
+        <p class="subtitle">Selecciona una actividad para comenzar</p>
+    </header>
+
+    <main>
+        <section class="intro">
+            <h2>Actividades</h2>
+            <p>Explora cada actividad y pon a prueba tus habilidades matemáticas.</p>
+        </section>
+
+        <section class="grid">
+            <a class="card" href="Tema1.html" data-symbol="＋">
+                <div>
+                    <div class="number">1</div>
+                    <div class="icon">➕ 📐</div>
+                    <div class="title">Operaciones básicas y perímetros</div>
+                </div>
+                <div class="go">Entrar a la actividad →</div>
+            </a>
+
+            <a class="card" href="actividad2.html" data-symbol="½">
+                <div>
+                    <div class="number">2</div>
+                    <div class="icon">½ 📏</div>
+                    <div class="title">Operaciones con fracciones y recta numérica</div>
+                </div>
+                <div class="go">Entrar a la actividad →</div>
+            </a>
+
+            <a class="card" href="actividad3.html" data-symbol="⅓">
+                <div>
+                    <div class="number">3</div>
+                    <div class="icon">🔢</div>
+                    <div class="title">Fracción de un número entero</div>
+                </div>
+                <div class="go">Entrar a la actividad →</div>
+            </a>
+
+            <a class="card" href="actividad4.html" data-symbol="x">
+                <div>
+                    <div class="number">4</div>
+                    <div class="icon">🧮</div>
+                    <div class="title">Actividad 4</div>
+                </div>
+                <div class="go">Entrar a la actividad →</div>
+            </a>
+
+            <a class="card" href="actividad5.html" data-symbol="π">
+                <div>
+                    <div class="number">5</div>
+                    <div class="icon">📊</div>
+                    <div class="title">Actividad 5</div>
+                </div>
+                <div class="go">Entrar a la actividad →</div>
+            </a>
+
+            <a class="card" href="actividad6.html" data-symbol="√">
+                <div>
+                    <div class="number">6</div>
+                    <div class="icon">📐</div>
+                    <div class="title">Actividad 6</div>
+                </div>
+                <div class="go">Entrar a la actividad →</div>
+            </a>
+
+            <a class="card" href="actividad7.html" data-symbol="∑">
+                <div>
+                    <div class="number">7</div>
+                    <div class="icon">📈</div>
+                    <div class="title">Actividad 7</div>
+                </div>
+                <div class="go">Entrar a la actividad →</div>
+            </a>
+
+            <a class="card" href="actividad8.html" data-symbol="△">
+                <div>
+                    <div class="number">8</div>
+                    <div class="icon">📏</div>
+                    <div class="title">Actividad 8</div>
+                </div>
+                <div class="go">Entrar a la actividad →</div>
+            </a>
+
+            <a class="card" href="actividad9.html" data-symbol="%">
+                <div>
+                    <div class="number">9</div>
+                    <div class="icon">∑</div>
+                    <div class="title">Actividad 9</div>
+                </div>
+                <div class="go">Entrar a la actividad →</div>
+            </a>
+
+            <a class="card" href="actividad10.html" data-symbol="∞">
+                <div>
+                    <div class="number">10</div>
+                    <div class="icon">🎲</div>
+                    <div class="title">Actividad 10</div>
+                </div>
+                <div class="go">Entrar a la actividad →</div>
+            </a>
+
+            <a class="card" href="actividad11.html" data-symbol="f(x)">
+                <div>
+                    <div class="number">11</div>
+                    <div class="icon">📉</div>
+                    <div class="title">Actividad 11</div>
+                </div>
+                <div class="go">Entrar a la actividad →</div>
+            </a>
+
+            <a class="card" href="actividad12.html" data-symbol="∫">
+                <div>
+                    <div class="number">12</div>
+                    <div class="icon">🧠</div>
+                    <div class="title">Actividad 12</div>
+                </div>
+                <div class="go">Entrar a la actividad →</div>
+            </a>
+        </section>
+    </main>
+
+    <footer>
+        Taller de Nivelación Matemática · Actividades interactivas
+    </footer>
+</body>
+</html>
