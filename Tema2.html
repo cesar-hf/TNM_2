@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sesión 2 · Quiz de Fracciones y Recta Numérica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B2D57;
+    --navy-deep:#071D3B;
+    --blue:#2F6FED;
+    --blue-soft:#DCE9FF;
+    --paper:#F6F4EE;
+    --line:#C9D6E8;
+    --coral:#E15B45;
+    --green:#1E9E6B;
+    --ink:#0B2D57;
+    --muted:#5B6B85;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      linear-gradient(180deg, rgba(11,45,87,0.02), rgba(11,45,87,0)),
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(47,111,237,0.07) 28px),
+      repeating-linear-gradient(90deg, transparent, transparent 27px, rgba(47,111,237,0.07) 28px),
+      var(--paper);
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px 16px;
+  }
+
+  .board{ width:100%; max-width:640px; }
+
+  .brand{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:18px; font-family:'Space Grotesk', sans-serif;
+  }
+  .brand .tag{ font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  .brand h1{ font-size:15px; margin:2px 0 0; color:var(--navy); font-weight:700; }
+  .brand .badge{
+    background:var(--navy); color:white; font-family:'IBM Plex Mono', monospace;
+    font-size:12px; padding:6px 12px; border-radius:20px; font-weight:600;
+  }
+
+  .card{
+    background:white; border:1.5px solid var(--line); border-radius:18px;
+    box-shadow:0 18px 40px -18px rgba(11,45,87,0.28); overflow:hidden; position:relative;
+  }
+  .card::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:6px;
+    background:linear-gradient(90deg, var(--navy), var(--blue) 55%, var(--coral));
+  }
+
+  .progress-row{ display:flex; gap:6px; padding:22px 26px 0; }
+  .dot{ flex:1; height:6px; border-radius:4px; background:var(--line); position:relative; overflow:hidden; }
+  .dot.done{ background:var(--navy); }
+  .dot.current{ background:var(--blue-soft); }
+  .dot.current::after{ content:""; position:absolute; inset:0; background:var(--blue); width:50%; }
+
+  .meta-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 26px 0; font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted);
+  }
+  .meta-row .type-chip{ background:var(--blue-soft); color:var(--navy); padding:4px 10px; border-radius:6px; font-weight:600; letter-spacing:0.02em; }
+  .meta-row .score{ font-weight:600; color:var(--navy); }
+
+  .q-wrap{ padding:20px 26px 26px; }
+  .q-label{ font-size:12px; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); font-weight:600; margin-bottom:10px; }
+  .q-expr{
+    font-family:'IBM Plex Mono', monospace; font-size:clamp(22px, 6vw, 30px); font-weight:600;
+    background:var(--navy-deep); color:white; padding:26px 20px; border-radius:14px;
+    text-align:center; letter-spacing:0.01em; margin-bottom:8px; line-height:1.4;
+    display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap;
+  }
+
+  /* stacked fraction */
+  .frac{ display:inline-flex; align-items:center; gap:2px; vertical-align:middle; }
+  .frac .fstack{ display:inline-flex; flex-direction:column; align-items:center; line-height:1; }
+  .frac .fnum{ padding:0 6px 3px; border-bottom:2px solid currentColor; }
+  .frac .fden{ padding:3px 6px 0; }
+  .mixed{ display:inline-flex; align-items:center; gap:4px; }
+
+  .q-shape{ text-align:center; margin-bottom:6px; }
+  .q-shape svg{ max-width:320px; width:100%; height:auto; }
+
+  .options{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:18px; }
+  .opt{
+    font-family:'IBM Plex Mono', monospace; font-size:16px; font-weight:600; color:var(--navy);
+    background:white; border:1.6px solid var(--line); border-radius:12px; padding:14px 8px;
+    cursor:pointer; transition:transform .12s ease, border-color .12s ease, background .12s ease;
+    text-align:center; display:flex; align-items:center; justify-content:center; min-height:56px;
+  }
+  .opt:hover:not(:disabled){ border-color:var(--blue); transform:translateY(-2px); }
+  .opt:disabled{ cursor:default; }
+  .opt.correct{ background:#E8F7EF; border-color:var(--green); color:var(--green); }
+  .opt.wrong{ background:#FCEAE6; border-color:var(--coral); color:var(--coral); }
+
+  .feedback{ margin-top:16px; min-height:22px; font-size:14px; font-weight:500; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .feedback.ok{ color:var(--green); }
+  .feedback.bad{ color:var(--coral); }
+  .feedback .hint{ color:var(--muted); font-weight:400; font-family:'Inter', sans-serif; }
+
+  .actions{ margin-top:20px; display:flex; justify-content:flex-end; }
+  .btn{
+    font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:14px;
+    background:var(--navy); color:white; border:none; border-radius:10px; padding:12px 22px;
+    cursor:pointer; transition:background .12s ease;
+  }
+  .btn:hover{ background:var(--blue); }
+  .btn:disabled{ background:var(--line); cursor:not-allowed; }
+
+  .center-panel{ padding:44px 30px; text-align:center; }
+  .center-panel h2{ font-family:'Space Grotesk', sans-serif; font-size:24px; margin:0 0 10px; color:var(--navy); }
+  .center-panel p{ color:var(--muted); font-size:14.5px; line-height:1.55; max-width:420px; margin:0 auto 22px; }
+  .types-list{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 26px; text-align:left; }
+  .types-list div{ background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:12px 14px; font-size:13px; color:var(--navy); font-weight:600; }
+  .types-list div span{ display:block; font-weight:400; color:var(--muted); font-size:12px; margin-top:2px; }
+
+  .score-big{ font-family:'IBM Plex Mono', monospace; font-size:52px; font-weight:700; color:var(--navy); margin:6px 0 2px; }
+  .score-sub{ color:var(--muted); font-size:13px; margin-bottom:24px; }
+  .breakdown{ text-align:left; border-top:1px solid var(--line); padding-top:16px; margin-bottom:22px; }
+  .breakdown-row{ display:flex; justify-content:space-between; padding:9px 0; font-size:13.5px; border-bottom:1px dashed var(--line); align-items:center; }
+  .breakdown-row:last-child{ border-bottom:none; }
+  .breakdown-row .r-icon{ margin-right:8px; }
+  .breakdown-row.ok{ color:var(--green); }
+  .breakdown-row.bad{ color:var(--coral); }
+
+  footer{ text-align:center; margin-top:16px; font-size:11.5px; color:var(--muted); }
+  .hidden{ display:none !important; }
+
+  @media (max-width:420px){
+    .options{ grid-template-columns:1fr; }
+    .types-list{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="board">
+  <div class="brand">
+    <div>
+      <div class="tag">PrepaTEC CCM · Fundamentos de Matemáticas</div>
+      <h1>Sesión 2 — Fracciones y Recta Numérica</h1>
+    </div>
+    <div class="badge" id="liveScore">0 / 0</div>
+  </div>
+
+  <div class="card">
+
+    <!-- START SCREEN -->
+    <div class="center-panel" id="startScreen">
+      <h2>¿Listo para practicar?</h2>
+      <p>8 preguntas, 2 por cada tema de la guía. Cuatro opciones cada una — presta atención a las opciones diseñadas para atrapar los errores típicos de fracciones.</p>
+      <div class="types-list">
+        <div>1 · Simplificación<span>Reducir a su mínima expresión</span></div>
+        <div>2 · Fracción → mixto<span>Cociente y residuo</span></div>
+        <div>3 · Recta numérica<span>Ubicar entre enteros</span></div>
+        <div>4 · Comparación<span>Denominador común</span></div>
+      </div>
+      <button class="btn" id="startBtn">Comenzar quiz</button>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div class="hidden" id="quizScreen">
+      <div class="progress-row" id="progressRow"></div>
+      <div class="meta-row">
+        <div class="type-chip" id="typeChip">Tipo 1</div>
+        <div class="score" id="questionCounter">Pregunta 1 de 8</div>
+      </div>
+      <div class="q-wrap">
+        <div class="q-label" id="qLabel">Escribe la fracción en su forma reducida:</div>
+        <div class="q-expr" id="qExpr"></div>
+        <div class="q-shape hidden" id="qShape"></div>
+        <div class="options" id="optionsWrap"></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="actions">
+          <button class="btn" id="nextBtn" disabled>Siguiente</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- END SCREEN -->
+    <div class="hidden center-panel" id="endScreen">
+      <h2>¡Sesión completada!</h2>
+      <div class="score-big" id="finalScore">0/8</div>
+      <div class="score-sub" id="finalMsg">Aciertos totales</div>
+      <div class="breakdown" id="breakdown"></div>
+      <button class="btn" id="retryBtn">Volver a intentar</button>
+    </div>
+
+  </div>
+
+  <footer>Basado en la Guía de la Sesión 2 · Fundamentos de Matemáticas · ALEKS Reforzamiento</footer>
+</div>
+
+<script>
+/* ---------- Helpers ---------- */
+function rand(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
+function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); return b ? gcd(b, a % b) : a; }
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+/* fraction -> plain text key (for uniqueness checks) */
+function fracKey(sign, num, den){ return `${sign<0?'-':''}${num}/${den}`; }
+/* fraction -> HTML markup (stacked) */
+function fracHTML(sign, num, den){
+  return `<span class="frac">${sign<0?'−':''}<span class="fstack"><span class="fnum">${num}</span><span class="fden">${den}</span></span></span>`;
+}
+function mixedHTML(sign, whole, num, den){
+  if(num === 0) return `<span class="mixed">${sign<0?'−':''}${whole}</span>`;
+  return `<span class="mixed">${sign<0?'−':''}${whole}<span class="frac"><span class="fstack"><span class="fnum">${num}</span><span class="fden">${den}</span></span></span></span>`;
+}
+function mixedText(sign, whole, num, den){
+  if(num===0) return `${sign<0?'-':''}${whole}`;
+  return `${sign<0?'-':''}${whole} ${num}/${den}`;
+}
+
+/* ---------- Question generators ---------- */
+
+// TIPO 1: Simplificación de fracciones
+function genSimplificacion(){
+  let p, q;
+  do { p = rand(2,9); q = rand(2,11); } while(gcd(p,q) !== 1 || p === q);
+  const g = rand(2,6);
+  const num = p*g, den = q*g;
+  const correctKey = fracKey(1,p,q);
+  const correctHTML = fracHTML(1,p,q);
+
+  const distractSet = new Map();
+  distractSet.set(fracKey(1,num,den), fracHTML(1,num,den)); // sin simplificar
+  distractSet.set(fracKey(1,q,p), fracHTML(1,q,p));         // numerador/denominador invertidos
+  // "simplificó" solo el numerador (error típico)
+  const partialKey = fracKey(1,p,den);
+  distractSet.set(partialKey, fracHTML(1,p,den));
+
+  distractSet.delete(correctKey);
+  let opts = [...distractSet.entries()].slice(0,3);
+  while(opts.length < 3){
+    const altP = p + rand(-2,2) || p+1, altQ = q + rand(-2,2) || q+1;
+    const k = fracKey(1, Math.max(altP,1), Math.max(altQ,1));
+    if(k !== correctKey && !opts.some(o=>o[0]===k)){
+      opts.push([k, fracHTML(1, Math.max(altP,1), Math.max(altQ,1))]);
+    }
+  }
+  const allOpts = shuffle([[correctKey, correctHTML], ...opts.slice(0,3)]);
+
+  return {
+    type:'Tipo 1 · Simplificación de fracciones',
+    label:'Escribe la siguiente fracción en su forma reducida:',
+    exprHTML: fracHTML(1, num, den),
+    correctKey,
+    options: allOpts,
+    tip:'Divide numerador y denominador entre su Máximo Común Divisor (MCD) hasta que no compartan más factores.'
+  };
+}
+
+// TIPO 2: Fracción impropia a número mixto
+function genMixto(){
+  let b, r;
+  do { b = rand(3,9); r = rand(1,b-1); } while(gcd(r,b) !== 1);
+  const whole = rand(2,6);
+  const numerator = whole*b + r;
+  const correctKey = mixedText(1, whole, r, b);
+  const correctHTML = mixedHTML(1, whole, r, b);
+
+  const distractSet = new Map();
+  distractSet.set(mixedText(1, r, whole, b), mixedHTML(1, r, whole, b)); // invirtió cociente y residuo
+  distractSet.set(mixedText(1, whole+1, r, b), mixedHTML(1, whole+1, r, b)); // cociente mal redondeado
+  distractSet.set(`${numerator}/${b}`, fracHTML(1, numerator, b)); // no convirtió, dejó impropia
+  distractSet.delete(correctKey);
+
+  const allOpts = shuffle([[correctKey, correctHTML], ...[...distractSet.entries()].slice(0,3)]);
+
+  return {
+    type:'Tipo 2 · Fracción impropia a número mixto',
+    label:'Convierte la fracción impropia a número mixto:',
+    exprHTML: fracHTML(1, numerator, b),
+    correctKey,
+    options: allOpts,
+    tip:'Divide numerador entre denominador: el cociente es la parte entera y el residuo va sobre el mismo denominador.'
+  };
+}
+
+// TIPO 3: Ubicación en la recta numérica
+function genRecta(){
+  const sign = Math.random() < 0.5 ? -1 : 1;
+  const den = rand(2,5);
+  const r = rand(1, den-1);
+  const whole = rand(0,2);
+  const asImproper = Math.random() < 0.5;
+
+  let exprHTML;
+  if(asImproper){
+    const numerator = whole*den + r;
+    exprHTML = fracHTML(sign, numerator, den);
+  } else {
+    exprHTML = mixedHTML(sign, whole, r, den);
+  }
+
+  // interval containing the value
+  let lower, upper;
+  if(sign > 0){ lower = whole; upper = whole+1; }
+  else { lower = -(whole+1); upper = -whole; }
+
+  const correctKey = `Entre ${lower} y ${upper}`;
+  const optSet = new Set([correctKey]);
+  const offsets = shuffle([-2,-1,1,2]);
+  for(const off of offsets){
+    if(optSet.size >= 4) break;
+    optSet.add(`Entre ${lower+off} y ${upper+off}`);
+  }
+  const allOpts = shuffle([...optSet].slice(0,4)).map(k => [k, k]);
+
+  return {
+    type:'Tipo 3 · Ubicación en la recta numérica',
+    label:'¿Entre qué dos números enteros se ubica este valor en la recta numérica?',
+    exprHTML,
+    correctKey,
+    options: allOpts,
+    tip: sign>0
+      ? 'Busca la parte entera: el valor cae justo después de ese entero, antes del siguiente.'
+      : 'Con negativos, el valor crece en magnitud hacia la izquierda: -2⅓ está entre -3 y -2, no entre -2 y -1.',
+    numberline:true
+  };
+}
+
+// TIPO 4: Comparación de fracciones
+function genComparacion(){
+  let b, d;
+  do { b = rand(3,15); d = rand(3,15); } while(b === d);
+  let a = rand(1,b-1), c = rand(1,d-1);
+
+  // ocasionalmente forzar igualdad
+  if(Math.random() < 0.22){
+    const k = rand(2,3);
+    d = b*k; c = a*k;
+  }
+
+  const left = a*d, right = c*b;
+  let correctKey;
+  if(left < right) correctKey = '<';
+  else if(left > right) correctKey = '>';
+  else correctKey = '=';
+
+  const options = shuffle(['<','>','=','No se puede comparar']).map(k=>[k,k]);
+
+  return {
+    type:'Tipo 4 · Comparación de fracciones',
+    label:'¿Cuál es la relación correcta entre las fracciones?',
+    exprHTML: `${fracHTML(1,a,b)} <span style="opacity:.55">___</span> ${fracHTML(1,c,d)}`,
+    correctKey,
+    options,
+    tip:'Amplifica ambas fracciones a un denominador común (el MCM) y compara los numeradores resultantes.'
+  };
+}
+
+const GENERATORS = [genSimplificacion, genMixto, genRecta, genComparacion];
+
+function buildQuizSet(){
+  const qs = [];
+  GENERATORS.forEach(fn => { qs.push(fn()); qs.push(fn()); });
+  return qs;
+}
+
+/* simple reference number line -3..3 (no highlight, just visual context) */
+function numberLineSVG(){
+  const ticks = [-3,-2,-1,0,1,2,3];
+  const w = 480, y = 60, left = 40, right = w-40;
+  const step = (right-left)/(ticks.length-1);
+  let marks = '';
+  ticks.forEach((t,i)=>{
+    const x = left + i*step;
+    marks += `<line x1="${x}" y1="${y-10}" x2="${x}" y2="${y+10}" stroke="${t===0?'#2F6FED':'#0B2D57'}" stroke-width="${t===0?3:2}"/>`;
+    marks += `<text x="${x}" y="${y+30}" font-size="13" font-family="IBM Plex Mono, monospace" fill="${t===0?'#2F6FED':'#0B2D57'}" text-anchor="middle" font-weight="600">${t}</text>`;
+    // sub-ticks
+    if(i < ticks.length-1){
+      for(let s=1;s<=3;s++){
+        const sx = x + (step/4)*s;
+        marks += `<line x1="${sx}" y1="${y-4}" x2="${sx}" y2="${y+4}" stroke="#C9D6E8" stroke-width="1.5"/>`;
+      }
+    }
+  });
+  return `<svg viewBox="0 0 ${w} 100" xmlns="http://www.w3.org/2000/svg">
+    <line x1="20" y1="${y}" x2="${w-20}" y2="${y}" stroke="#0B2D57" stroke-width="2"/>
+    <polygon points="${w-20},${y} ${w-30},${y-6} ${w-30},${y+6}" fill="#0B2D57"/>
+    <polygon points="20,${y} 30,${y-6} 30,${y+6}" fill="#0B2D57"/>
+    ${marks}
+  </svg>`;
+}
+
+/* ---------- App state ---------- */
+let quiz = [], idx = 0, score = 0, answered = false, history = [];
+
+const startScreen = document.getElementById('startScreen');
+const quizScreen = document.getElementById('quizScreen');
+const endScreen = document.getElementById('endScreen');
+const startBtn = document.getElementById('startBtn');
+const retryBtn = document.getElementById('retryBtn');
+const nextBtn = document.getElementById('nextBtn');
+const progressRow = document.getElementById('progressRow');
+const typeChip = document.getElementById('typeChip');
+const questionCounter = document.getElementById('questionCounter');
+const qLabel = document.getElementById('qLabel');
+const qExpr = document.getElementById('qExpr');
+const qShape = document.getElementById('qShape');
+const optionsWrap = document.getElementById('optionsWrap');
+const feedback = document.getElementById('feedback');
+const liveScore = document.getElementById('liveScore');
+
+function startQuiz(){
+  quiz = buildQuizSet();
+  idx = 0; score = 0; history = [];
+  startScreen.classList.add('hidden');
+  endScreen.classList.add('hidden');
+  quizScreen.classList.remove('hidden');
+  buildProgress();
+  renderQuestion();
+  updateLiveScore();
+}
+
+function buildProgress(){
+  progressRow.innerHTML = '';
+  quiz.forEach((_, i)=>{
+    const d = document.createElement('div');
+    d.className = 'dot';
+    progressRow.appendChild(d);
+  });
+  updateProgress();
+}
+function updateProgress(){
+  [...progressRow.children].forEach((d,i)=>{
+    d.classList.remove('done','current');
+    if(i < idx) d.classList.add('done');
+    else if(i === idx) d.classList.add('current');
+  });
+}
+function updateLiveScore(){ liveScore.textContent = `${score} / ${quiz.length}`; }
+
+function renderQuestion(){
+  answered = false;
+  nextBtn.disabled = true;
+  nextBtn.textContent = idx === quiz.length - 1 ? 'Ver resultados' : 'Siguiente';
+  feedback.textContent = '';
+  feedback.className = 'feedback';
+
+  const q = quiz[idx];
+  typeChip.textContent = q.type.split(' · ')[0];
+  questionCounter.textContent = `Pregunta ${idx+1} de ${quiz.length}`;
+  qLabel.textContent = q.label;
+  qExpr.innerHTML = q.exprHTML;
+
+  if(q.numberline){
+    qShape.classList.remove('hidden');
+    qShape.innerHTML = numberLineSVG();
+  } else {
+    qShape.classList.add('hidden');
+    qShape.innerHTML = '';
+  }
+
+  optionsWrap.innerHTML = '';
+  q.options.forEach(([key, html]) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerHTML = html;
+    btn.dataset.key = key;
+    btn.addEventListener('click', ()=> selectAnswer(key, btn));
+    optionsWrap.appendChild(btn);
+  });
+
+  updateProgress();
+}
+
+function selectAnswer(key, btn){
+  if(answered) return;
+  answered = true;
+  const q = quiz[idx];
+  const isCorrect = key === q.correctKey;
+  if(isCorrect) score++;
+  history.push({ q, isCorrect });
+
+  [...optionsWrap.children].forEach(b => {
+    b.disabled = true;
+    if(b.dataset.key === q.correctKey) b.classList.add('correct');
+  });
+  if(!isCorrect) btn.classList.add('wrong');
+
+  feedback.classList.add(isCorrect ? 'ok' : 'bad');
+  feedback.innerHTML = isCorrect
+    ? `✓ ¡Correcto! <span class="hint">${q.tip}</span>`
+    : `✕ No era esa opción. <span class="hint">${q.tip}</span>`;
+
+  nextBtn.disabled = false;
+  updateLiveScore();
+}
+
+function nextQuestion(){
+  if(idx < quiz.length - 1){ idx++; renderQuestion(); }
+  else { showResults(); }
+}
+
+function showResults(){
+  quizScreen.classList.add('hidden');
+  endScreen.classList.remove('hidden');
+  document.getElementById('finalScore').textContent = `${score}/${quiz.length}`;
+  const pct = Math.round((score/quiz.length)*100);
+  let msg = 'Sigue practicando.';
+  if(pct === 100) msg = '¡Dominaste los 4 temas de fracciones!';
+  else if(pct >= 75) msg = 'Muy buen dominio del tema.';
+  else if(pct >= 50) msg = 'Vas bien, repasa los tipos que fallaste.';
+  document.getElementById('finalMsg').textContent = msg;
+
+  const breakdown = document.getElementById('breakdown');
+  breakdown.innerHTML = '';
+  history.forEach(h=>{
+    const row = document.createElement('div');
+    row.className = 'breakdown-row ' + (h.isCorrect ? 'ok' : 'bad');
+    row.innerHTML = `<span><span class="r-icon">${h.isCorrect ? '✓' : '✕'}</span>${h.q.type}</span>`;
+    breakdown.appendChild(row);
+  });
+}
+
+startBtn.addEventListener('click', startQuiz);
+retryBtn.addEventListener('click', startQuiz);
+nextBtn.addEventListener('click', nextQuestion);
+</script>
+</body>
+</html>
