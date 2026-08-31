@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sesión 5 · Quiz de Suma y Resta de Fracciones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B2D57; --navy-deep:#071D3B; --blue:#2F6FED; --blue-soft:#DCE9FF;
+    --paper:#F6F4EE; --line:#C9D6E8; --coral:#E15B45; --green:#1E9E6B; --ink:#0B2D57; --muted:#5B6B85;
+  }
+  *{box-sizing:border-box;} html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      linear-gradient(180deg, rgba(11,45,87,0.02), rgba(11,45,87,0)),
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(47,111,237,0.07) 28px),
+      repeating-linear-gradient(90deg, transparent, transparent 27px, rgba(47,111,237,0.07) 28px),
+      var(--paper);
+    font-family:'Inter', sans-serif; color:var(--ink);
+    display:flex; align-items:center; justify-content:center; padding:28px 16px;
+  }
+  .board{ width:100%; max-width:640px; }
+  .brand{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; font-family:'Space Grotesk', sans-serif; }
+  .brand .tag{ font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  .brand h1{ font-size:15px; margin:2px 0 0; color:var(--navy); font-weight:700; }
+  .brand .badge{ background:var(--navy); color:white; font-family:'IBM Plex Mono', monospace; font-size:12px; padding:6px 12px; border-radius:20px; font-weight:600; }
+  .card{ background:white; border:1.5px solid var(--line); border-radius:18px; box-shadow:0 18px 40px -18px rgba(11,45,87,0.28); overflow:hidden; position:relative; }
+  .card::before{ content:""; position:absolute; top:0; left:0; right:0; height:6px; background:linear-gradient(90deg, var(--navy), var(--blue) 55%, var(--coral)); }
+  .progress-row{ display:flex; gap:6px; padding:22px 26px 0; }
+  .dot{ flex:1; height:6px; border-radius:4px; background:var(--line); position:relative; overflow:hidden; }
+  .dot.done{ background:var(--navy); } .dot.current{ background:var(--blue-soft); }
+  .dot.current::after{ content:""; position:absolute; inset:0; background:var(--blue); width:50%; }
+  .meta-row{ display:flex; justify-content:space-between; align-items:center; padding:14px 26px 0; font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted); }
+  .meta-row .type-chip{ background:var(--blue-soft); color:var(--navy); padding:4px 10px; border-radius:6px; font-weight:600; letter-spacing:0.02em; }
+  .meta-row .score{ font-weight:600; color:var(--navy); }
+  .q-wrap{ padding:20px 26px 26px; }
+  .q-label{ font-size:12px; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); font-weight:600; margin-bottom:10px; }
+  .q-expr{ font-family:'IBM Plex Mono', monospace; font-size:clamp(18px, 5vw, 24px); font-weight:600; background:var(--navy-deep); color:white; padding:26px 20px; border-radius:14px; text-align:center; letter-spacing:0.01em; margin-bottom:8px; line-height:1.4; display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; }
+  .frac{ display:inline-flex; align-items:center; gap:2px; vertical-align:middle; }
+  .frac .fstack{ display:inline-flex; flex-direction:column; align-items:center; line-height:1; }
+  .frac .fnum{ padding:0 6px 3px; border-bottom:2px solid currentColor; } .frac .fden{ padding:3px 6px 0; }
+  .options{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:18px; }
+  .opt{ font-family:'IBM Plex Mono', monospace; font-size:16px; font-weight:600; color:var(--navy); background:white; border:1.6px solid var(--line); border-radius:12px; padding:14px 8px; cursor:pointer; transition:transform .12s ease, border-color .12s ease, background .12s ease; text-align:center; display:flex; align-items:center; justify-content:center; min-height:56px; }
+  .opt:hover:not(:disabled){ border-color:var(--blue); transform:translateY(-2px); }
+  .opt:disabled{ cursor:default; }
+  .opt.correct{ background:#E8F7EF; border-color:var(--green); color:var(--green); }
+  .opt.wrong{ background:#FCEAE6; border-color:var(--coral); color:var(--coral); }
+  .feedback{ margin-top:16px; min-height:22px; font-size:14px; font-weight:500; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .feedback.ok{ color:var(--green); } .feedback.bad{ color:var(--coral); }
+  .feedback .hint{ color:var(--muted); font-weight:400; font-family:'Inter', sans-serif; }
+  .actions{ margin-top:20px; display:flex; justify-content:flex-end; }
+  .btn{ font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:14px; background:var(--navy); color:white; border:none; border-radius:10px; padding:12px 22px; cursor:pointer; transition:background .12s ease; }
+  .btn:hover{ background:var(--blue); } .btn:disabled{ background:var(--line); cursor:not-allowed; }
+  .center-panel{ padding:44px 30px; text-align:center; }
+  .center-panel h2{ font-family:'Space Grotesk', sans-serif; font-size:24px; margin:0 0 10px; color:var(--navy); }
+  .center-panel p{ color:var(--muted); font-size:14.5px; line-height:1.55; max-width:420px; margin:0 auto 22px; }
+  .types-list{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin:0 0 26px; text-align:left; }
+  .types-list div{ background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:12px 12px; font-size:12.5px; color:var(--navy); font-weight:600; }
+  .types-list div span{ display:block; font-weight:400; color:var(--muted); font-size:11.5px; margin-top:2px; }
+  .score-big{ font-family:'IBM Plex Mono', monospace; font-size:52px; font-weight:700; color:var(--navy); margin:6px 0 2px; }
+  .score-sub{ color:var(--muted); font-size:13px; margin-bottom:24px; }
+  .breakdown{ text-align:left; border-top:1px solid var(--line); padding-top:16px; margin-bottom:22px; }
+  .breakdown-row{ display:flex; justify-content:space-between; padding:9px 0; font-size:13.5px; border-bottom:1px dashed var(--line); align-items:center; }
+  .breakdown-row:last-child{ border-bottom:none; }
+  .breakdown-row .r-icon{ margin-right:8px; }
+  .breakdown-row.ok{ color:var(--green); } .breakdown-row.bad{ color:var(--coral); }
+  footer{ text-align:center; margin-top:16px; font-size:11.5px; color:var(--muted); }
+  .hidden{ display:none !important; }
+  @media (max-width:420px){ .options{ grid-template-columns:1fr; } .types-list{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="board">
+  <div class="brand">
+    <div>
+      <div class="tag">PrepaTEC CCM · Fundamentos de Matemáticas</div>
+      <h1>Sesión 5 — Suma y Resta de Fracciones</h1>
+    </div>
+    <div class="badge" id="liveScore">0 / 0</div>
+  </div>
+  <div class="card">
+    <div class="center-panel" id="startScreen">
+      <h2>¿Listo para practicar?</h2>
+      <p>6 preguntas, 2 por cada bloque de la guía. Denominadores cada vez más grandes — cuidado con el MCM y con no dejar la fracción sin simplificar.</p>
+      <div class="types-list">
+        <div>Bloque A<span>Denominadores directos</span></div>
+        <div>Bloque B<span>Denominadores compuestos</span></div>
+        <div>Bloque C<span>Mayor escala</span></div>
+      </div>
+      <button class="btn" id="startBtn">Comenzar quiz</button>
+    </div>
+    <div class="hidden" id="quizScreen">
+      <div class="progress-row" id="progressRow"></div>
+      <div class="meta-row">
+        <div class="type-chip" id="typeChip">Bloque A</div>
+        <div class="score" id="questionCounter">Pregunta 1 de 6</div>
+      </div>
+      <div class="q-wrap">
+        <div class="q-label" id="qLabel">Evaluar la siguiente expresión y escribir la respuesta como una fracción irreducible:</div>
+        <div class="q-expr" id="qExpr"></div>
+        <div class="options" id="optionsWrap"></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="actions"><button class="btn" id="nextBtn" disabled>Siguiente</button></div>
+      </div>
+    </div>
+    <div class="hidden center-panel" id="endScreen">
+      <h2>¡Sesión completada!</h2>
+      <div class="score-big" id="finalScore">0/6</div>
+      <div class="score-sub" id="finalMsg">Aciertos totales</div>
+      <div class="breakdown" id="breakdown"></div>
+      <button class="btn" id="retryBtn">Volver a intentar</button>
+    </div>
+  </div>
+  <footer>Basado en la Guía de la Sesión 5 · Fundamentos de Matemáticas · PrepaTEC CCM</footer>
+</div>
+
+<script>
+function rand(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
+function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); return b ? gcd(b, a % b) : a; }
+function lcm2(a,b){ return Math.abs(a*b) / gcd(a,b); }
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function fracRawHTML(n,d){ return `<span class="frac"><span class="fstack"><span class="fnum">${n}</span><span class="fden">${d}</span></span></span>`; }
+function fracHTML(sign,n,d){ return `${sign<0?'−':''}${fracRawHTML(n,d)}`; }
+function addUnique(map,key,html){ if(!map.has(key)) map.set(key,html); }
+
+const POOLS = {
+  A: [[4,6,12],[3,6,8],[6,9,18]],
+  B: [[5,10,4],[2,7,14],[9,12,6]],
+  C: [[6,4,9],[15,3,5],[10,8,20]]
+};
+
+function genSumaResta(level){
+  const set = POOLS[level];
+  const denoms = set[rand(0,set.length-1)];
+  const lcmAll = denoms.reduce((a,b)=>lcm2(a,b));
+  const nums = denoms.map(d => rand(1,d-1));
+  const sign2 = Math.random() < 0.5 ? 1 : -1;
+  const sign3 = Math.random() < 0.5 ? 1 : -1;
+  const signs = [1, sign2, sign3];
+
+  function evalWith(s){
+    let total = 0;
+    for(let i=0;i<3;i++) total += s[i]*nums[i]*(lcmAll/denoms[i]);
+    return total;
+  }
+
+  const rawNum = evalWith(signs);
+  const g = gcd(rawNum, lcmAll) || 1;
+  const rnum = rawNum/g, rden = lcmAll/g;
+  const isInt = rden === 1;
+  const correctKey = isInt ? `${rnum}` : `${rnum<0?'-':''}${Math.abs(rnum)}/${rden}`;
+  const correctHTML = isInt ? `${rnum}` : fracHTML(rnum<0?-1:1, Math.abs(rnum), rden);
+
+  const optSet = new Map();
+  optSet.set(correctKey, correctHTML);
+
+  // error de signo: invierte el signo del último término
+  const flipSigns = [1, sign2, -sign3];
+  const flipNum = evalWith(flipSigns);
+  const fg = gcd(flipNum, lcmAll) || 1;
+  const fRnum = flipNum/fg, fRden = lcmAll/fg;
+  const fKey = fRden===1 ? `${fRnum}` : `${fRnum<0?'-':''}${Math.abs(fRnum)}/${fRden}`;
+  addUnique(optSet, fKey, fRden===1 ? `${fRnum}` : fracHTML(fRnum<0?-1:1, Math.abs(fRnum), fRden));
+
+  // sin simplificar
+  if(g > 1){
+    const uKey = `${rawNum<0?'-':''}${Math.abs(rawNum)}/${lcmAll}`;
+    addUnique(optSet, uKey, fracHTML(rawNum<0?-1:1, Math.abs(rawNum), lcmAll));
+  }
+
+  // olvidó el último término
+  const partial = evalWith([1, sign2, 0]);
+  const pg = gcd(partial, lcmAll) || 1;
+  const pRnum = partial/pg, pRden = lcmAll/pg;
+  const pKey = pRden===1 ? `${pRnum}` : `${pRnum<0?'-':''}${Math.abs(pRnum)}/${pRden}`;
+  addUnique(optSet, pKey, pRden===1 ? `${pRnum}` : fracHTML(pRnum<0?-1:1, Math.abs(pRnum), pRden));
+
+  let bump = 1;
+  while(optSet.size < 4){
+    const alt = rnum + bump;
+    const k = isInt ? `${alt}` : `${alt}/${rden}`;
+    addUnique(optSet, k, isInt ? `${alt}` : fracHTML(alt<0?-1:1, Math.abs(alt), rden));
+    bump++;
+  }
+
+  const allOpts = shuffle([...optSet.entries()].slice(0,4));
+
+  const opSym = s => s<0 ? '−' : '+';
+  const exprHTML = `${fracRawHTML(nums[0],denoms[0])} <span style="opacity:.6">${opSym(signs[1])}</span> ${fracRawHTML(nums[1],denoms[1])} <span style="opacity:.6">${opSym(signs[2])}</span> ${fracRawHTML(nums[2],denoms[2])}`;
+
+  return {
+    type: `Bloque ${level}`,
+    exprHTML,
+    correctKey,
+    options: allOpts,
+    tip:'Encuentra el MCM de los denominadores, convierte cada fracción y simplifica el resultado final.'
+  };
+}
+
+const LEVELS = ['A','B','C'];
+function buildQuizSet(){
+  const qs = [];
+  LEVELS.forEach(lv => { qs.push(genSumaResta(lv)); qs.push(genSumaResta(lv)); });
+  return qs;
+}
+
+let quiz=[], idx=0, score=0, answered=false, history=[];
+const startScreen=document.getElementById('startScreen'), quizScreen=document.getElementById('quizScreen'), endScreen=document.getElementById('endScreen');
+const startBtn=document.getElementById('startBtn'), retryBtn=document.getElementById('retryBtn'), nextBtn=document.getElementById('nextBtn');
+const progressRow=document.getElementById('progressRow'), typeChip=document.getElementById('typeChip'), questionCounter=document.getElementById('questionCounter');
+const qExpr=document.getElementById('qExpr'), optionsWrap=document.getElementById('optionsWrap'), feedback=document.getElementById('feedback'), liveScore=document.getElementById('liveScore');
+
+function startQuiz(){
+  quiz = buildQuizSet(); idx=0; score=0; history=[];
+  startScreen.classList.add('hidden'); endScreen.classList.add('hidden'); quizScreen.classList.remove('hidden');
+  buildProgress(); renderQuestion(); updateLiveScore();
+}
+function buildProgress(){ progressRow.innerHTML=''; quiz.forEach(()=>{ const d=document.createElement('div'); d.className='dot'; progressRow.appendChild(d); }); updateProgress(); }
+function updateProgress(){ [...progressRow.children].forEach((d,i)=>{ d.classList.remove('done','current'); if(i<idx) d.classList.add('done'); else if(i===idx) d.classList.add('current'); }); }
+function updateLiveScore(){ liveScore.textContent = `${score} / ${quiz.length}`; }
+
+function renderQuestion(){
+  answered=false; nextBtn.disabled=true;
+  nextBtn.textContent = idx===quiz.length-1 ? 'Ver resultados' : 'Siguiente';
+  feedback.textContent=''; feedback.className='feedback';
+  const q = quiz[idx];
+  typeChip.textContent = q.type;
+  questionCounter.textContent = `Pregunta ${idx+1} de ${quiz.length}`;
+  qExpr.innerHTML = q.exprHTML;
+  optionsWrap.innerHTML = '';
+  q.options.forEach(([key,html])=>{
+    const btn=document.createElement('button'); btn.className='opt'; btn.innerHTML=html; btn.dataset.key=key;
+    btn.addEventListener('click', ()=>selectAnswer(key,btn));
+    optionsWrap.appendChild(btn);
+  });
+  updateProgress();
+}
+function selectAnswer(key,btn){
+  if(answered) return; answered=true;
+  const q=quiz[idx]; const isCorrect = key===q.correctKey;
+  if(isCorrect) score++;
+  history.push({q,isCorrect});
+  [...optionsWrap.children].forEach(b=>{ b.disabled=true; if(b.dataset.key===q.correctKey) b.classList.add('correct'); });
+  if(!isCorrect) btn.classList.add('wrong');
+  feedback.classList.add(isCorrect?'ok':'bad');
+  feedback.innerHTML = isCorrect ? `✓ ¡Correcto! <span class="hint">${q.tip}</span>` : `✕ No era esa opción. <span class="hint">${q.tip}</span>`;
+  nextBtn.disabled=false; updateLiveScore();
+}
+function nextQuestion(){ if(idx<quiz.length-1){ idx++; renderQuestion(); } else { showResults(); } }
+function showResults(){
+  quizScreen.classList.add('hidden'); endScreen.classList.remove('hidden');
+  document.getElementById('finalScore').textContent = `${score}/${quiz.length}`;
+  const pct = Math.round((score/quiz.length)*100);
+  let msg='Sigue practicando.';
+  if(pct===100) msg='¡Dominaste la suma y resta de fracciones!';
+  else if(pct>=75) msg='Muy buen dominio del tema.';
+  else if(pct>=50) msg='Vas bien, repasa los bloques que fallaste.';
+  document.getElementById('finalMsg').textContent = msg;
+  const breakdown=document.getElementById('breakdown'); breakdown.innerHTML='';
+  history.forEach(h=>{
+    const row=document.createElement('div'); row.className='breakdown-row '+(h.isCorrect?'ok':'bad');
+    row.innerHTML = `<span><span class="r-icon">${h.isCorrect?'✓':'✕'}</span>${h.q.type}</span>`;
+    breakdown.appendChild(row);
+  });
+}
+startBtn.addEventListener('click', startQuiz);
+retryBtn.addEventListener('click', startQuiz);
+nextBtn.addEventListener('click', nextQuestion);
+</script>
+</body>
+</html>
