@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sesión 3 · Quiz de Fracciones y Números con Signo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B2D57;
+    --navy-deep:#071D3B;
+    --blue:#2F6FED;
+    --blue-soft:#DCE9FF;
+    --paper:#F6F4EE;
+    --line:#C9D6E8;
+    --coral:#E15B45;
+    --green:#1E9E6B;
+    --ink:#0B2D57;
+    --muted:#5B6B85;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      linear-gradient(180deg, rgba(11,45,87,0.02), rgba(11,45,87,0)),
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(47,111,237,0.07) 28px),
+      repeating-linear-gradient(90deg, transparent, transparent 27px, rgba(47,111,237,0.07) 28px),
+      var(--paper);
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px 16px;
+  }
+
+  .board{ width:100%; max-width:640px; }
+
+  .brand{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:18px; font-family:'Space Grotesk', sans-serif;
+  }
+  .brand .tag{ font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  .brand h1{ font-size:15px; margin:2px 0 0; color:var(--navy); font-weight:700; }
+  .brand .badge{
+    background:var(--navy); color:white; font-family:'IBM Plex Mono', monospace;
+    font-size:12px; padding:6px 12px; border-radius:20px; font-weight:600;
+  }
+
+  .card{
+    background:white; border:1.5px solid var(--line); border-radius:18px;
+    box-shadow:0 18px 40px -18px rgba(11,45,87,0.28); overflow:hidden; position:relative;
+  }
+  .card::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:6px;
+    background:linear-gradient(90deg, var(--navy), var(--blue) 55%, var(--coral));
+  }
+
+  .progress-row{ display:flex; gap:6px; padding:22px 26px 0; }
+  .dot{ flex:1; height:6px; border-radius:4px; background:var(--line); position:relative; overflow:hidden; }
+  .dot.done{ background:var(--navy); }
+  .dot.current{ background:var(--blue-soft); }
+  .dot.current::after{ content:""; position:absolute; inset:0; background:var(--blue); width:50%; }
+
+  .meta-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 26px 0; font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted);
+  }
+  .meta-row .type-chip{ background:var(--blue-soft); color:var(--navy); padding:4px 10px; border-radius:6px; font-weight:600; letter-spacing:0.02em; }
+  .meta-row .score{ font-weight:600; color:var(--navy); }
+
+  .q-wrap{ padding:20px 26px 26px; }
+  .q-label{ font-size:12px; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); font-weight:600; margin-bottom:10px; }
+  .q-expr{
+    font-family:'IBM Plex Mono', monospace; font-size:clamp(19px, 5.4vw, 27px); font-weight:600;
+    background:var(--navy-deep); color:white; padding:26px 20px; border-radius:14px;
+    text-align:center; letter-spacing:0.01em; margin-bottom:8px; line-height:1.4;
+    display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap;
+  }
+
+  .frac{ display:inline-flex; align-items:center; gap:2px; vertical-align:middle; }
+  .frac .fstack{ display:inline-flex; flex-direction:column; align-items:center; line-height:1; }
+  .frac .fnum{ padding:0 6px 3px; border-bottom:2px solid currentColor; }
+  .frac .fden{ padding:3px 6px 0; }
+
+  .options{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:18px; }
+  .opt{
+    font-family:'IBM Plex Mono', monospace; font-size:16px; font-weight:600; color:var(--navy);
+    background:white; border:1.6px solid var(--line); border-radius:12px; padding:14px 8px;
+    cursor:pointer; transition:transform .12s ease, border-color .12s ease, background .12s ease;
+    text-align:center; display:flex; align-items:center; justify-content:center; min-height:56px;
+  }
+  .opt:hover:not(:disabled){ border-color:var(--blue); transform:translateY(-2px); }
+  .opt:disabled{ cursor:default; }
+  .opt.correct{ background:#E8F7EF; border-color:var(--green); color:var(--green); }
+  .opt.wrong{ background:#FCEAE6; border-color:var(--coral); color:var(--coral); }
+
+  .feedback{ margin-top:16px; min-height:22px; font-size:14px; font-weight:500; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .feedback.ok{ color:var(--green); }
+  .feedback.bad{ color:var(--coral); }
+  .feedback .hint{ color:var(--muted); font-weight:400; font-family:'Inter', sans-serif; }
+
+  .actions{ margin-top:20px; display:flex; justify-content:flex-end; }
+  .btn{
+    font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:14px;
+    background:var(--navy); color:white; border:none; border-radius:10px; padding:12px 22px;
+    cursor:pointer; transition:background .12s ease;
+  }
+  .btn:hover{ background:var(--blue); }
+  .btn:disabled{ background:var(--line); cursor:not-allowed; }
+
+  .center-panel{ padding:44px 30px; text-align:center; }
+  .center-panel h2{ font-family:'Space Grotesk', sans-serif; font-size:24px; margin:0 0 10px; color:var(--navy); }
+  .center-panel p{ color:var(--muted); font-size:14.5px; line-height:1.55; max-width:420px; margin:0 auto 22px; }
+  .types-list{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 26px; text-align:left; }
+  .types-list div{ background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:12px 14px; font-size:13px; color:var(--navy); font-weight:600; }
+  .types-list div span{ display:block; font-weight:400; color:var(--muted); font-size:12px; margin-top:2px; }
+
+  .score-big{ font-family:'IBM Plex Mono', monospace; font-size:52px; font-weight:700; color:var(--navy); margin:6px 0 2px; }
+  .score-sub{ color:var(--muted); font-size:13px; margin-bottom:24px; }
+  .breakdown{ text-align:left; border-top:1px solid var(--line); padding-top:16px; margin-bottom:22px; }
+  .breakdown-row{ display:flex; justify-content:space-between; padding:9px 0; font-size:13.5px; border-bottom:1px dashed var(--line); align-items:center; }
+  .breakdown-row:last-child{ border-bottom:none; }
+  .breakdown-row .r-icon{ margin-right:8px; }
+  .breakdown-row.ok{ color:var(--green); }
+  .breakdown-row.bad{ color:var(--coral); }
+
+  footer{ text-align:center; margin-top:16px; font-size:11.5px; color:var(--muted); }
+  .hidden{ display:none !important; }
+
+  @media (max-width:420px){
+    .options{ grid-template-columns:1fr; }
+    .types-list{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="board">
+  <div class="brand">
+    <div>
+      <div class="tag">PrepaTEC CCM · Fundamentos de Matemáticas</div>
+      <h1>Sesión 3 — Fracciones y Números con Signo</h1>
+    </div>
+    <div class="badge" id="liveScore">0 / 0</div>
+  </div>
+
+  <div class="card">
+
+    <!-- START SCREEN -->
+    <div class="center-panel" id="startScreen">
+      <h2>¿Listo para practicar?</h2>
+      <p>4 preguntas, 2 por cada tipo de reactivo de esta sesión. Cuatro opciones cada una — cuidado con las trampas de signo y de simplificación.</p>
+      <div class="types-list">
+        <div>1 · Fracción de un entero<span>1/n de una cantidad</span></div>
+        <div>2 · Multiplicación con signo<span>Fracciones y enteros, ley de signos</span></div>
+      </div>
+      <button class="btn" id="startBtn">Comenzar quiz</button>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div class="hidden" id="quizScreen">
+      <div class="progress-row" id="progressRow"></div>
+      <div class="meta-row">
+        <div class="type-chip" id="typeChip">Tipo 1</div>
+        <div class="score" id="questionCounter">Pregunta 1 de 4</div>
+      </div>
+      <div class="q-wrap">
+        <div class="q-label" id="qLabel"></div>
+        <div class="q-expr" id="qExpr"></div>
+        <div class="options" id="optionsWrap"></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="actions">
+          <button class="btn" id="nextBtn" disabled>Siguiente</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- END SCREEN -->
+    <div class="hidden center-panel" id="endScreen">
+      <h2>¡Sesión completada!</h2>
+      <div class="score-big" id="finalScore">0/4</div>
+      <div class="score-sub" id="finalMsg">Aciertos totales</div>
+      <div class="breakdown" id="breakdown"></div>
+      <button class="btn" id="retryBtn">Volver a intentar</button>
+    </div>
+
+  </div>
+
+  <footer>Basado en la Guía de la Sesión 3 · Fundamentos de Matemáticas · ALEKS Reforzamiento</footer>
+</div>
+
+<script>
+/* ---------- Helpers ---------- */
+function rand(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
+function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); return b ? gcd(b, a % b) : a; }
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+/* raw stacked fraction, numerator/denominator passed as-is (strings or numbers) */
+function fracRawHTML(numStr, denStr){
+  return `<span class="frac"><span class="fstack"><span class="fnum">${numStr}</span><span class="fden">${denStr}</span></span></span>`;
+}
+/* signed fraction: sign prefixed, both num/den positive */
+function fracHTML(sign, num, den){
+  return `${sign<0?'−':''}${fracRawHTML(num,den)}`;
+}
+
+/* ---------- Question generators ---------- */
+
+// TIPO 1: Fracción de un número entero (1/n de N)
+function genFraccionEntero(){
+  const n = rand(3,12);
+  const mult = rand(2,10);
+  const N = n*mult;
+  const correct = mult;
+
+  const optSet = new Map();
+  optSet.set(`${correct}`, `${correct}`);
+  optSet.set(`${N}`, `${N}`);              // no dividió
+  optSet.set(`${n}`, `${n}`);              // confundió con el denominador
+  let extra = correct + (Math.random()<0.5 ? 1 : -1);
+  if(extra <= 0) extra = correct + 2;
+  optSet.set(`${extra}`, `${extra}`);      // error de cálculo cercano
+
+  const allOpts = shuffle([...optSet.entries()].slice(0,4));
+
+  return {
+    type:'Tipo 1 · Fracción de un número entero',
+    label:'Calcula el valor pedido:',
+    exprHTML: `<span style="font-size:0.62em;font-weight:500;">¿Cuánto es</span> ${fracRawHTML(1,n)} <span style="font-size:0.62em;font-weight:500;">de ${N}?</span>`,
+    correctKey: `${correct}`,
+    options: allOpts,
+    tip:'Multiplicar por 1/n equivale a dividir la cantidad entre n.'
+  };
+}
+
+// TIPO 2: Multiplicación de factores con signo (fracciones y enteros)
+function genMultFactoresSigno(){
+  function randFracFactor(){
+    const num = rand(2,6), den = rand(2,6);
+    const sign = Math.random() < 0.5 ? -1 : 1;
+    const denomNeg = Math.random() < 0.3;
+    return { num, den, sign, denomNeg };
+  }
+  function randIntFactor(){
+    const num = rand(2,8);
+    const sign = Math.random() < 0.5 ? -1 : 1;
+    return { num, den:1, sign, denomNeg:false };
+  }
+  const factors = [randFracFactor(), randFracFactor(), randIntFactor()];
+  const totalSign = factors.reduce((s,f)=>s*f.sign,1);
+  const rawNum = factors.reduce((p,f)=>p*f.num,1);
+  const rawDen = factors.reduce((p,f)=>p*f.den,1);
+  const g = gcd(rawNum, rawDen) || 1;
+  const num = rawNum / g, den = rawDen / g;
+  const isInt = den === 1;
+
+  const correctKey = isInt ? `${totalSign<0?'-':''}${num}` : `${totalSign<0?'-':''}${num}/${den}`;
+  const correctHTML = isInt ? `${totalSign<0?'−':''}${num}` : fracHTML(totalSign, num, den);
+
+  // distractor 1: signo equivocado
+  const wSignKey = isInt ? `${totalSign>0?'-':''}${num}` : `${totalSign>0?'-':''}${num}/${den}`;
+  const wSignHTML = isInt ? `${totalSign>0?'−':''}${num}` : fracHTML(-totalSign, num, den);
+
+  // distractor 2: sin simplificar (o, si ya no hay nada que simplificar, un valor cercano)
+  let unsimKey, unsimHTML;
+  if(g > 1 && !isInt){
+    unsimKey = `${totalSign<0?'-':''}${rawNum}/${rawDen}`;
+    unsimHTML = fracHTML(totalSign, rawNum, rawDen);
+  } else {
+    const bump = isInt ? num + rand(1,3) : num + 1;
+    unsimKey = isInt ? `${totalSign<0?'-':''}${bump}` : `${totalSign<0?'-':''}${bump}/${den}`;
+    unsimHTML = isInt ? `${totalSign<0?'−':''}${bump}` : fracHTML(totalSign, bump, den);
+  }
+
+  // distractor 3: numerador y denominador invertidos
+  let invKey, invHTML;
+  if(isInt){
+    invKey = `${totalSign<0?'-':''}1/${num}`;
+    invHTML = fracHTML(totalSign, 1, num);
+  } else {
+    invKey = `${totalSign<0?'-':''}${den}/${num}`;
+    invHTML = fracHTML(totalSign, den, num);
+  }
+
+  const optSet = new Map();
+  optSet.set(correctKey, correctHTML);
+  optSet.set(wSignKey, wSignHTML);
+  optSet.set(unsimKey, unsimHTML);
+  optSet.set(invKey, invHTML);
+  let filler = 1;
+  while(optSet.size < 4){
+    const fNum = num + filler + 1;
+    const k = isInt ? `${fNum}` : `${fNum}/${den}`;
+    if(!optSet.has(k)) optSet.set(k, isInt ? `${fNum}` : fracHTML(1, fNum, den));
+    filler++;
+  }
+
+  const allOpts = shuffle([...optSet.entries()].slice(0,4));
+
+  const exprHTML = factors.map(f => {
+    if(f.den === 1){
+      return f.sign < 0 ? `<span>( − ${f.num} )</span>` : `<span>${f.num}</span>`;
+    }
+    if(f.denomNeg){
+      return `( ${fracRawHTML(f.num, '−'+f.den)} )`;
+    }
+    return f.sign < 0 ? `( ${fracHTML(-1, f.num, f.den)} )` : `( ${fracRawHTML(f.num, f.den)} )`;
+  }).join(' <span style="opacity:.55">·</span> ');
+
+  return {
+    type:'Tipo 2 · Multiplicación de factores con signo',
+    label:'Multiplica y simplifica:',
+    exprHTML,
+    correctKey,
+    options: allOpts,
+    tip:'Cuenta los signos negativos para el signo final, luego simplifica cruzado antes de multiplicar.'
+  };
+}
+
+const GENERATORS = [genFraccionEntero, genMultFactoresSigno];
+
+function buildQuizSet(){
+  const qs = [];
+  GENERATORS.forEach(fn => { qs.push(fn()); qs.push(fn()); });
+  return qs;
+}
+
+/* ---------- App state ---------- */
+let quiz = [], idx = 0, score = 0, answered = false, history = [];
+
+const startScreen = document.getElementById('startScreen');
+const quizScreen = document.getElementById('quizScreen');
+const endScreen = document.getElementById('endScreen');
+const startBtn = document.getElementById('startBtn');
+const retryBtn = document.getElementById('retryBtn');
+const nextBtn = document.getElementById('nextBtn');
+const progressRow = document.getElementById('progressRow');
+const typeChip = document.getElementById('typeChip');
+const questionCounter = document.getElementById('questionCounter');
+const qLabel = document.getElementById('qLabel');
+const qExpr = document.getElementById('qExpr');
+const optionsWrap = document.getElementById('optionsWrap');
+const feedback = document.getElementById('feedback');
+const liveScore = document.getElementById('liveScore');
+
+function startQuiz(){
+  quiz = buildQuizSet();
+  idx = 0; score = 0; history = [];
+  startScreen.classList.add('hidden');
+  endScreen.classList.add('hidden');
+  quizScreen.classList.remove('hidden');
+  buildProgress();
+  renderQuestion();
+  updateLiveScore();
+}
+
+function buildProgress(){
+  progressRow.innerHTML = '';
+  quiz.forEach(()=>{
+    const d = document.createElement('div');
+    d.className = 'dot';
+    progressRow.appendChild(d);
+  });
+  updateProgress();
+}
+function updateProgress(){
+  [...progressRow.children].forEach((d,i)=>{
+    d.classList.remove('done','current');
+    if(i < idx) d.classList.add('done');
+    else if(i === idx) d.classList.add('current');
+  });
+}
+function updateLiveScore(){ liveScore.textContent = `${score} / ${quiz.length}`; }
+
+function renderQuestion(){
+  answered = false;
+  nextBtn.disabled = true;
+  nextBtn.textContent = idx === quiz.length - 1 ? 'Ver resultados' : 'Siguiente';
+  feedback.textContent = '';
+  feedback.className = 'feedback';
+
+  const q = quiz[idx];
+  typeChip.textContent = q.type.split(' · ')[0];
+  questionCounter.textContent = `Pregunta ${idx+1} de ${quiz.length}`;
+  qLabel.textContent = q.label;
+  qExpr.innerHTML = q.exprHTML;
+
+  optionsWrap.innerHTML = '';
+  q.options.forEach(([key, html]) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerHTML = html;
+    btn.dataset.key = key;
+    btn.addEventListener('click', ()=> selectAnswer(key, btn));
+    optionsWrap.appendChild(btn);
+  });
+
+  updateProgress();
+}
+
+function selectAnswer(key, btn){
+  if(answered) return;
+  answered = true;
+  const q = quiz[idx];
+  const isCorrect = key === q.correctKey;
+  if(isCorrect) score++;
+  history.push({ q, isCorrect });
+
+  [...optionsWrap.children].forEach(b => {
+    b.disabled = true;
+    if(b.dataset.key === q.correctKey) b.classList.add('correct');
+  });
+  if(!isCorrect) btn.classList.add('wrong');
+
+  feedback.classList.add(isCorrect ? 'ok' : 'bad');
+  feedback.innerHTML = isCorrect
+    ? `✓ ¡Correcto! <span class="hint">${q.tip}</span>`
+    : `✕ No era esa opción. <span class="hint">${q.tip}</span>`;
+
+  nextBtn.disabled = false;
+  updateLiveScore();
+}
+
+function nextQuestion(){
+  if(idx < quiz.length - 1){ idx++; renderQuestion(); }
+  else { showResults(); }
+}
+
+function showResults(){
+  quizScreen.classList.add('hidden');
+  endScreen.classList.remove('hidden');
+  document.getElementById('finalScore').textContent = `${score}/${quiz.length}`;
+  const pct = Math.round((score/quiz.length)*100);
+  let msg = 'Sigue practicando.';
+  if(pct === 100) msg = '¡Excelente trabajo en clase!';
+  else if(pct >= 75) msg = 'Muy buen dominio del tema.';
+  else if(pct >= 50) msg = 'Vas bien, repasa los tipos que fallaste.';
+  document.getElementById('finalMsg').textContent = msg;
+
+  const breakdown = document.getElementById('breakdown');
+  breakdown.innerHTML = '';
+  history.forEach(h=>{
+    const row = document.createElement('div');
+    row.className = 'breakdown-row ' + (h.isCorrect ? 'ok' : 'bad');
+    row.innerHTML = `<span><span class="r-icon">${h.isCorrect ? '✓' : '✕'}</span>${h.q.type}</span>`;
+    breakdown.appendChild(row);
+  });
+}
+
+startBtn.addEventListener('click', startQuiz);
+retryBtn.addEventListener('click', startQuiz);
+nextBtn.addEventListener('click', nextQuestion);
+</script>
+</body>
+</html>
